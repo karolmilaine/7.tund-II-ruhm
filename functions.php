@@ -1,6 +1,6 @@
 <?php
 
-	require("../../../config.php");
+	require("../../config.php");
 	// functions.php
 	//var_dump($GLOBALS);
 	
@@ -14,7 +14,7 @@
 	
 	function signUp ($email, $password) {
 		
-		$database = "if16_romil";
+		$database = "if16_karojyrg_2";
 		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
 
 		$stmt = $mysqli->prepare("INSERT INTO user_sample (email, password) VALUES (?, ?)");
@@ -39,7 +39,7 @@
 		
 		$error = "";
 		
-		$database = "if16_romil";
+		$database = "if16_karojyrg_2";
 		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
 
 		$stmt = $mysqli->prepare("
@@ -95,14 +95,14 @@
 	
 	function saveCar ($plate, $color) {
 		
-		$database = "if16_romil";
+		$database = "if16_karojyrg_2";
 		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
 
-		$stmt = $mysqli->prepare("INSERT INTO cars_and_colors (plate, color) VALUES (?, ?)");
+		$stmt = $mysqli->prepare("INSERT INTO cars_and_colors (plate, varv) VALUES (?, ?)");
 	
 		echo $mysqli->error;
 		
-		$stmt->bind_param("ss", $plate, $color);
+		$stmt->bind_param("ss", $plate, $varv);
 		
 		if($stmt->execute()) {
 			echo "salvestamine õnnestus";
@@ -118,16 +118,16 @@
 	
 	function getAllCars() {
 		
-		$database = "if16_romil";
+		$database = "if16_karojyrg_2";
 		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
 		
 		$stmt = $mysqli->prepare("
-			SELECT id, plate, color
+			SELECT id, plate, varv
 			FROM cars_and_colors
 		");
 		echo $mysqli->error;
 		
-		$stmt->bind_result($id, $plate, $color);
+		$stmt->bind_result($id, $plate, $varv);
 		$stmt->execute();
 		
 		
@@ -143,7 +143,7 @@
 			
 			$car->id = $id;
 			$car->plate = $plate;
-			$car->carColor = $color;
+			$car->carColor = $varv;
 			
 			//echo $plate."<br>";
 			// iga kord massiivi lisan juurde nr märgi
@@ -168,7 +168,7 @@
 	
 	function saveInterest ($interest) {
 		
-		$database = "if16_romil";
+		$database = "if16_karojyrg_2";
 		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
 
 		$stmt = $mysqli->prepare("INSERT INTO interests (interest) VALUES (?)");
@@ -190,7 +190,7 @@
 	
 	function getAllInterests() {
 		
-		$database = "if16_romil";
+		$database = "if16_karojyrg_2";
 		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
 		
 		$stmt = $mysqli->prepare("
@@ -225,10 +225,48 @@
 		return $result;
 	}
 	
+	//muude asjade salvestamisel on kõik muu sama, peale $stmt ridade:
 	
-	
-	
-	
+	function saveUserInterest ($interest) {
+		
+		$database = "if16_karojyrg_2";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $database);
+
+		//et ei salvestaks ühte asja mitu korda:
+		
+			$stmt = $mysqli->prepare("
+			SELECT id FROM user_interests 
+			WHERE user_id=? AND interest_id=?
+		");
+		$stmt->bind_param("ii", $_SESSION["userId"], $interest);
+		$stmt->bind_result($id); // seda rida pole tegelikult vaja
+		
+		$stmt->execute();
+		
+		if($stmt->fetch()){
+			// oli olemas juba selline rida, siis
+			echo "juba olemas";
+			//pärast midagi edasi ei tehta
+			return;
+		}
+		
+		// kui ei olnud, siis sisestan
+		
+		// $stmt->close(); tuleb kirjutada vanemas php versioonis, muidu on error
+		
+		$stmt = $mysqli->prepare("
+			INSERT INTO user_interests (user_id, interest_id) VALUES (?,?)
+		
+		");
+		$stmt->bind_param("ii", $_SESSION["userId"], $interest);
+		
+		if($stmt->execute()) {
+			echo "salvestamine õnnestus";
+		} else {
+			echo "ERROR".$stmt->error;
+		}
+		
+	}
 	
 	
 	/*function sum($x, $y) {

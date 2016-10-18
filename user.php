@@ -37,6 +37,16 @@
 	}
 	
     $interests = getAllInterests();
+	
+	if ( isset($_POST["userInterest"]) && 
+		!empty($_POST["userInterest"])
+	  ) {
+		  
+		saveUserInterest(cleanInput($_POST["userInterest"]));
+		
+	}
+	
+    $interests = getAllInterests();
 ?>
 <h1><a href="data.php"> < tagasi</a> Kasutaja leht</h1>
 <?=$msg;?>
